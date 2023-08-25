@@ -1,5 +1,6 @@
 const User = require('../models/user');
 
+// Add user controller
 module.exports.addUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
@@ -13,6 +14,7 @@ module.exports.addUser = (req, res) => {
     });
 };
 
+// Get all users controller
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
@@ -21,6 +23,7 @@ module.exports.getUsers = (req, res) => {
     });
 };
 
+// Get user by user ID controller
 module.exports.getUserById = (req, res) => {
   if (req.params.userId.length === 24) {
     User.findById(req.params.userId)
@@ -37,6 +40,7 @@ module.exports.getUserById = (req, res) => {
   }
 };
 
+// Edit info about user controller
 module.exports.editUserData = (req, res) => {
   const { name, about } = req.body;
   if (req.user._id) {
@@ -56,6 +60,7 @@ module.exports.editUserData = (req, res) => {
   }
 };
 
+// Edit user avatar controller
 module.exports.editUserAvatar = (req, res) => {
   if (req.user._id) {
     User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: 'true', runValidators: 'true' })

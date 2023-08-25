@@ -1,5 +1,6 @@
 const Card = require('../models/card');
 
+// Card add controller
 module.exports.addCard = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
@@ -15,6 +16,7 @@ module.exports.addCard = (req, res) => {
     });
 };
 
+// Get cards controller
 module.exports.getCards = (req, res) => {
   Card.find({})
     .populate(['owner', 'likes'])
@@ -24,6 +26,7 @@ module.exports.getCards = (req, res) => {
     });
 };
 
+// Delete card controller
 module.exports.deleteCard = (req, res) => {
   if (req.params.cardId.length === 24) {
     Card.findByIdAndRemove(req.params.cardId)
@@ -40,6 +43,7 @@ module.exports.deleteCard = (req, res) => {
   }
 };
 
+// Like add controller
 module.exports.likeCard = (req, res) => {
   if (req.params.cardId.length === 24) {
     Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
@@ -57,6 +61,7 @@ module.exports.likeCard = (req, res) => {
   }
 };
 
+// Delete like controller
 module.exports.dislikeCard = (req, res) => {
   if (req.params.cardId.length === 24) {
     Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
