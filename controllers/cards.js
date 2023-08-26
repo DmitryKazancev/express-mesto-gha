@@ -50,10 +50,6 @@ module.exports.likeCard = (req, res) => {
     .orFail()
     .populate(['owner', 'likes'])
     .then((card) => {
-      // if (!card) {
-      //   res.status(404).send({ message: 'Card not found' });
-      //   return;
-      // }
       res.send(card);
     })
     .catch((err) => {
@@ -73,10 +69,6 @@ module.exports.dislikeCard = (req, res) => {
     .orFail()
     .populate(['owner', 'likes'])
     .then((card) => {
-      // if (!card) {
-      //   res.status(404).send({ message: 'Card not found' });
-      //   return;
-      // }
       res.send(card);
     })
     .catch((err) => {
