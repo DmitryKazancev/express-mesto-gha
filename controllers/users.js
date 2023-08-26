@@ -26,7 +26,7 @@ module.exports.getUsers = (req, res) => {
 // Get user by user ID controller
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .onFail()
+    .orFail()
     .then((user) => {
       res.send(user);
     })
