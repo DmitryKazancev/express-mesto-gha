@@ -29,11 +29,8 @@ module.exports.getCards = (req, res) => {
 // Delete card controller
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Card not found' });
-        return;
-      }
+    .orFail()
+    .then(() => {
       res.send({ message: 'Card remove' });
     })
     .catch((err) => {
@@ -50,12 +47,13 @@ module.exports.deleteCard = (req, res) => {
 // Like add controller
 module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
+    .orFail()
     .populate(['owner', 'likes'])
     .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Card not found' });
-        return;
-      }
+      // if (!card) {
+      //   res.status(404).send({ message: 'Card not found' });
+      //   return;
+      // }
       res.send(card);
     })
     .catch((err) => {
@@ -72,12 +70,13 @@ module.exports.likeCard = (req, res) => {
 // Delete like controller
 module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
+    .orFail()
     .populate(['owner', 'likes'])
     .then((card) => {
-      if (!card) {
-        res.status(404).send({ message: 'Card not found' });
-        return;
-      }
+      // if (!card) {
+      //   res.status(404).send({ message: 'Card not found' });
+      //   return;
+      // }
       res.send(card);
     })
     .catch((err) => {
