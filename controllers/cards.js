@@ -29,9 +29,12 @@ module.exports.getCards = (req, res) => {
 // Delete card controller
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .onFail()
-    .then(() => {
-      res.send({ message: 'Card is delete' });
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Card not found' });
+        return;
+      }
+      res.send({ message: 'Card remove' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
