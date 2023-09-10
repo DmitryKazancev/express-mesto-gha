@@ -1,7 +1,9 @@
 const Card = require('../models/card');
+const BadRequest = require('../errors/BadRequest');
+const NotFound = require('../errors/NotFound');
 
 // Card add controller
-module.exports.addCard = (req, res) => {
+module.exports.addCard = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
@@ -9,25 +11,28 @@ module.exports.addCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(400).send({ message: err.message });
+        next(new BadRequest(err.message));
+        // res.status(400).send({ message: err.message });
       } else {
-        res.status(500).send({ message: 'На сервере произошла ошибка' });
+        next(err);
+        // res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
 
 // Get cards controller
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
     .then((users) => res.status(200).send(users))
-    .catch(() => {
-      res.status(500).send({ message: 'Server error' });
-    });
+    .catch(next);
+  //   () => {
+  //   res.status(500).send({ message: 'Server error' });
+  // });
 };
 
 // Delete card controller
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail()
     .then(() => {
@@ -35,17 +40,20 @@ module.exports.deleteCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Incorrect card id' });
+        next(new BadRequest('Incorrect card id'));
+        // res.status(400).send({ message: 'Incorrect card id' });
       } else if (err.name === 'DocumentNotFoundError') {
-        res.status(404).send({ message: 'Card not found' });
+        next(new NotFound('Card not found'));
+        // res.status(404).send({ message: 'Card not found' });
       } else {
-        res.status(500).send({ message: 'Server error' });
+        next(err);
+        // res.status(500).send({ message: 'Server error' });
       }
     });
 };
 
 // Like add controller
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, { new: true })
     .orFail()
     .populate(['owner', 'likes'])
@@ -54,17 +62,20 @@ module.exports.likeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Incorrect card id' });
+        next(new BadRequest('Incorrect card id'));
+        // res.status(400).send({ message: 'Incorrect card id' });
       } else if (err.name === 'DocumentNotFoundError') {
-        res.status(404).send({ message: 'Card not found' });
+        next(new NotFound('Card not found'));
+        // res.status(404).send({ message: 'Card not found' });
       } else {
-        res.status(500).send({ message: 'Server error' });
+        next(err);
+        // res.status(500).send({ message: 'Server error' });
       }
     });
 };
 
 // Delete like controller
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .orFail()
     .populate(['owner', 'likes'])
@@ -73,11 +84,14 @@ module.exports.dislikeCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Incorrect card id' });
+        next(new BadRequest('Incorrect card id'));
+        // res.status(400).send({ message: 'Incorrect card id' });
       } else if (err.name === 'DocumentNotFoundError') {
-        res.status(404).send({ message: 'Card not found' });
+        next(new NotFound('Card not found'));
+        // res.status(404).send({ message: 'Card not found' });
       } else {
-        res.status(500).send({ message: 'Server error' });
+        next(err);
+        // res.status(500).send({ message: 'Server error' });
       }
     });
 };
