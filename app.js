@@ -10,8 +10,10 @@ const usersRoutes = require('./routes/users');
 const cardsRoutes = require('./routes/cards');
 const signupRoutes = require('./routes/signup');
 const signinRoutes = require('./routes/signin');
+const NotFound = require('./errors/NotFound');
+const errorHandler = require('./middlewares/error-handler');
 
-const { PORT = 3000, DB_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
+const { PORT = 3000, DB_URL = 'mongodb://127.0.0.1:27017/mestodb' } = process.env;
 const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -31,21 +33,11 @@ app.use('/signup', signupRoutes);
 app.use(auth);
 app.use('/users', usersRoutes);
 app.use('/cards', cardsRoutes);
-app.use('*', (req, res) => {
-  res.status(404).send({ message: '404 Page not found' });
+app.use('*', (req, res, next) => {
+  next(new NotFound('404 Page not found'));
 });
 
 app.use(errors());
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(errorHandler);
 
 app.listen(PORT);

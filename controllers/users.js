@@ -65,7 +65,7 @@ module.exports.editUserData = (req, res, next) => {
         if (err.name === 'ValidationError') {
           next(new BadRequest(err.message));
         } else {
-          next(new NotFound(`Not found user with id: ${req.params.userId}`));
+          next(err);
         }
       });
   } else {
@@ -84,7 +84,7 @@ module.exports.editUserAvatar = (req, res, next) => {
         if (err.name === 'ValidationError') {
           next(new BadRequest(err.message));
         } else {
-          next(new NotFound(`Not found user with id: ${req.params.userId}`));
+          next(err);
         }
       });
   } else {

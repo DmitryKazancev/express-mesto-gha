@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const httpRegex = require('../utils/constants');
 
 // Mongoose DB schema for card
 const cardSchema = new mongoose.Schema({
@@ -13,7 +14,7 @@ const cardSchema = new mongoose.Schema({
     required: [true, 'Link field is required'],
     validate: {
       validator(link) {
-        return /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_+.~#?&/=]*)$/.test(link);
+        return httpRegex.test(link);
       },
       message: 'Card link available',
     },
