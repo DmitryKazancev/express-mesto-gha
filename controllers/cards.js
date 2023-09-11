@@ -1,6 +1,7 @@
-const Card = require('../models/card');
 const BadRequest = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFound');
+const ForbiddenStatus = require('../errors/ForbiddenStatus');
+const Card = require('../models/card');
 
 // Card add controller
 module.exports.addCard = (req, res, next) => {
@@ -32,22 +33,58 @@ module.exports.getCards = (req, res, next) => {
 };
 
 // Delete card controller
+// module.exports.deleteCard = (req, res, next) => {
+//   Card.findById(req.params.cardId)
+//     .then();
+//   Card.findByIdAndRemove(req.params.cardId)
+//     .orFail()
+//     .then(() => {
+//       res.send({ message: 'Card remove' });
+//     })
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         next(new BadRequest('Incorrect card id'));
+//         // res.status(400).send({ message: 'Incorrect card id' });
+//       } else if (err.name === 'DocumentNotFoundError') {
+//         next(new NotFound('Card not found'));
+//         // res.status(404).send({ message: 'Card not found' });
+//       } else {
+//         next(err);
+//         // res.status(500).send({ message: 'Server error' });
+//       }
+//     });
+// };
+
 module.exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail()
-    .then(() => {
-      res.send({ message: 'Card remove' });
+  Card.findById(req.params.cardId)
+    .then((card) => {
+      if (!card.owner.equals(req.user._id)) {
+        throw new ForbiddenStatus('Not permission for card');
+      }
+      Card.deleteOne(card)
+        .orFail()
+        .then(() => {
+          res.send({ message: 'Card remove' });
+        })
+        .catch((err) => {
+          if (err.name === 'CastError') {
+            next(new BadRequest('Incorrect card id'));
+            // res.status(400).send({ message: 'Incorrect card id' });
+          } else if (err.name === 'DocumentNotFoundError') {
+            next(new NotFound('Card not found'));
+            // res.status(404).send({ message: 'Card not found' });
+          } else {
+            next(err);
+            // res.status(500).send({ message: 'Server error' });
+          }
+        });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequest('Incorrect card id'));
+      if (err.name === 'TypeError') {
+        next(new NotFound('Incorrect card id'));
         // res.status(400).send({ message: 'Incorrect card id' });
-      } else if (err.name === 'DocumentNotFoundError') {
-        next(new NotFound('Card not found'));
-        // res.status(404).send({ message: 'Card not found' });
       } else {
         next(err);
-        // res.status(500).send({ message: 'Server error' });
       }
     });
 };

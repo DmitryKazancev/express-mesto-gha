@@ -1,21 +1,33 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const BadRequest = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFound');
+const ConflictStatus = require('../errors/ConflictStatus');
 const User = require('../models/user');
 
 // Add user controller
 module.exports.addUser = (req, res, next) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequest(err.message));
-        // res.status(400).send({ message: err.message });
-      } else {
-        // res.status(500).send({ message: 'На сервере произошла ошибка' });
-        next(err);
-      }
-    });
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
+    })
+      .then((user) => res.status(201).send({
+        name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email,
+      }))
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          next(new BadRequest(err.message));
+          // res.status(400).send({ message: err.message });
+        } else if (err.code === 11000) {
+          next(new ConflictStatus('User create yet'));
+        } else {
+          // res.status(500).send({ message: 'На сервере произошла ошибка' });
+          next(err);
+        }
+      }));
 };
 
 // Get all users controller
@@ -89,4 +101,21 @@ module.exports.editUserAvatar = (req, res, next) => {
     next(new NotFound(`Not found user with id: ${req.params.userId}`));
     // res.status(500).send({ message: 'Server error' });
   }
+};
+
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'sprint', { expiresIn: '7d' });
+      res.send({ token });
+    })
+    .catch((err) => next(err));
+};
+
+module.exports.getMeInfo = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => res.status(200).send(user))
+
+    .catch(next);
 };
