@@ -10,7 +10,6 @@ const usersRoutes = require('./routes/users');
 const cardsRoutes = require('./routes/cards');
 const signupRoutes = require('./routes/signup');
 const signinRoutes = require('./routes/signin');
-// const indexRoutes = require('./routes/index');
 
 const { PORT = 3000, DB_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 const app = express();
@@ -27,13 +26,6 @@ mongoose.connect(DB_URL, {
   useNewUrlParser: true,
 });
 
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '64e798327cfb23e64b25a5cf',
-//   };
-//   next();
-// });
-// app.use(indexRoutes);
 app.use('/signin', signinRoutes);
 app.use('/signup', signupRoutes);
 app.use(auth);
@@ -45,12 +37,10 @@ app.use('*', (req, res) => {
 
 app.use(errors());
 app.use((err, req, res, next) => {
-  // если у ошибки нет статуса, выставляем 500
   const { statusCode = 500, message } = err;
   res
     .status(statusCode)
     .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
         : message,

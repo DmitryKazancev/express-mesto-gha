@@ -17,9 +17,7 @@ router.get('/:userId', celebrate(
     }),
   },
 ), getUserById);
-// router.get('/:userId', getUserById);
 
-// router.post('/', addUser);
 router.patch('/me', celebrate(
   {
     body: Joi.object().keys({

@@ -13,10 +13,8 @@ module.exports.addCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new BadRequest(err.message));
-        // res.status(400).send({ message: err.message });
       } else {
         next(err);
-        // res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -27,34 +25,9 @@ module.exports.getCards = (req, res, next) => {
     .populate(['owner', 'likes'])
     .then((users) => res.status(200).send(users))
     .catch(next);
-  //   () => {
-  //   res.status(500).send({ message: 'Server error' });
-  // });
 };
 
 // Delete card controller
-// module.exports.deleteCard = (req, res, next) => {
-//   Card.findById(req.params.cardId)
-//     .then();
-//   Card.findByIdAndRemove(req.params.cardId)
-//     .orFail()
-//     .then(() => {
-//       res.send({ message: 'Card remove' });
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         next(new BadRequest('Incorrect card id'));
-//         // res.status(400).send({ message: 'Incorrect card id' });
-//       } else if (err.name === 'DocumentNotFoundError') {
-//         next(new NotFound('Card not found'));
-//         // res.status(404).send({ message: 'Card not found' });
-//       } else {
-//         next(err);
-//         // res.status(500).send({ message: 'Server error' });
-//       }
-//     });
-// };
-
 module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
@@ -69,20 +42,16 @@ module.exports.deleteCard = (req, res, next) => {
         .catch((err) => {
           if (err.name === 'CastError') {
             next(new BadRequest('Incorrect card id'));
-            // res.status(400).send({ message: 'Incorrect card id' });
           } else if (err.name === 'DocumentNotFoundError') {
             next(new NotFound('Card not found'));
-            // res.status(404).send({ message: 'Card not found' });
           } else {
             next(err);
-            // res.status(500).send({ message: 'Server error' });
           }
         });
     })
     .catch((err) => {
       if (err.name === 'TypeError') {
         next(new NotFound('Incorrect card id'));
-        // res.status(400).send({ message: 'Incorrect card id' });
       } else {
         next(err);
       }
@@ -100,13 +69,10 @@ module.exports.likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Incorrect card id'));
-        // res.status(400).send({ message: 'Incorrect card id' });
       } else if (err.name === 'DocumentNotFoundError') {
         next(new NotFound('Card not found'));
-        // res.status(404).send({ message: 'Card not found' });
       } else {
         next(err);
-        // res.status(500).send({ message: 'Server error' });
       }
     });
 };
@@ -122,13 +88,10 @@ module.exports.dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Incorrect card id'));
-        // res.status(400).send({ message: 'Incorrect card id' });
       } else if (err.name === 'DocumentNotFoundError') {
         next(new NotFound('Card not found'));
-        // res.status(404).send({ message: 'Card not found' });
       } else {
         next(err);
-        // res.status(500).send({ message: 'Server error' });
       }
     });
 };

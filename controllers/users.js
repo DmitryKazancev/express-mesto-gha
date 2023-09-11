@@ -20,11 +20,9 @@ module.exports.addUser = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequest(err.message));
-          // res.status(400).send({ message: err.message });
         } else if (err.code === 11000) {
           next(new ConflictStatus('User create yet'));
         } else {
-          // res.status(500).send({ message: 'На сервере произошла ошибка' });
           next(err);
         }
       }));
@@ -47,13 +45,10 @@ module.exports.getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         next(new BadRequest(`Incorrect user id: ${req.params.userId}`));
-        // res.status(400).send({ message: 'Incorrect id' });
       } else if (err.name === 'DocumentNotFoundError') {
         next(new NotFound(`Not found user with id: ${req.params.userId}`));
-        // res.status(404).send({ message: 'User not found' });
       } else {
         next(err);
-        // res.status(500).send({ message: 'Server error' });
       }
     });
 };
@@ -69,15 +64,12 @@ module.exports.editUserData = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequest(err.message));
-          // res.status(400).send({ message: err.message });
         } else {
           next(new NotFound(`Not found user with id: ${req.params.userId}`));
-          // res.status(500).send({ message: 'User not found' });
         }
       });
   } else {
     next(new NotFound(`Not found user with id: ${req.params.userId}`));
-    // res.status(500).send({ message: 'Server error' });
   }
 };
 
@@ -91,15 +83,12 @@ module.exports.editUserAvatar = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequest(err.message));
-          // res.status(400).send({ message: err.message });
         } else {
           next(new NotFound(`Not found user with id: ${req.params.userId}`));
-          // res.status(500).send({ message: 'User not found' });
         }
       });
   } else {
     next(new NotFound(`Not found user with id: ${req.params.userId}`));
-    // res.status(500).send({ message: 'Server error' });
   }
 };
 
@@ -116,6 +105,5 @@ module.exports.login = (req, res, next) => {
 module.exports.getMeInfo = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => res.status(200).send(user))
-
     .catch(next);
 };
